@@ -1,0 +1,11 @@
+--2025-07-01 10:38:57--  https://images.unsplash.com/photo-1503454537195-1dcabb73ffb9?q=80
+Résolution de images.unsplash.com (images.unsplash.com)… 199.232.170.208, 2a04:4e42:6a::720
+Connexion à images.unsplash.com (images.unsplash.com)|199.232.170.208|:443… connecté.
+requête HTTP transmise, en attente de la réponse… 200 OK
+Taille : 1217929 (1,2M) [image/jpeg]
+Enregistre : ‘src/assets/background.jpg’
+
+      src/as   0%       0  --.-KB/s                    src/ass  60% 718,69K  3,38MB/s               src/assets/b 100%   1,16M  3,35MB/s    ds 0,3s    
+
+2025-07-01 10:38:59 (3,35 MB/s) - ‘src/assets/background.jpg’ enregistré [1217929/1217929]
+

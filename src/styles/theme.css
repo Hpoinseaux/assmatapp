@@ -1,0 +1,117 @@
+:root {
+  --primary-color: #FF6B6B;
+  --secondary-color: #4ECDC4;
+  --accent-color: #45B7D1;
+  --background-color: #F8F9FA;
+  --card-background: #FFFFFF;
+  --text-color: #333333;
+  --success-color: #4CAF50;
+  --error-color: #FF5252;
+}
+
+/* Styles généraux */
+body {
+  font-family: 'Comic Sans MS', 'Arial Rounded MT Bold', sans-serif;
+  background-color: var(--background-color);
+  color: var(--text-color);
+}
+
+/* Boutons */
+.btn-primary {
+  background-color: var(--primary-color);
+  color: white;
+  padding: 0.5rem 1rem;
+  border-radius: 20px;
+  font-weight: bold;
+  transition: transform 0.2s;
+}
+
+.btn-primary:hover {
+  transform: scale(1.05);
+}
+
+.btn-secondary {
+  background-color: var(--secondary-color);
+  color: white;
+}
+
+.btn-accent {
+  background-color: var(--accent-color);
+  color: white;
+}
+
+/* Cards */
+.card {
+  background-color: var(--card-background);
+  border-radius: 15px;
+  padding: 1rem;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  margin-bottom: 1rem;
+}
+
+/* Formulaires */
+.form-input {
+  border-radius: 10px;
+  padding: 0.75rem;
+  border: 2px solid #E0E0E0;
+  margin-bottom: 1rem;
+  font-family: inherit;
+}
+
+.form-input:focus {
+  outline: none;
+  border-color: var(--primary-color);
+  box-shadow: 0 0 0 3px rgba(255, 107, 107, 0.2);
+}
+
+/* Tableaux */
+.table {
+  border-radius: 10px;
+  overflow: hidden;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.table th {
+  background-color: var(--primary-color);
+  color: white;
+  padding: 0.75rem;
+  text-align: left;
+}
+
+.table td {
+  padding: 0.75rem;
+  border-bottom: 1px solid #E0E0E0;
+}
+
+/* Messages */
+.message-success {
+  background-color: #E8F5E9;
+  color: #2E7D32;
+  padding: 1rem;
+  border-radius: 10px;
+  margin: 1rem 0;
+}
+
+.message-error {
+  background-color: #FFEBEE;
+  color: #C62828;
+  padding: 1rem;
+  border-radius: 10px;
+  margin: 1rem 0;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .container {
+    padding: 1rem;
+  }
+  
+  .table th,
+  .table td {
+    padding: 0.5rem;
+  }
+  
+  .form-input {
+    padding: 0.5rem;
+  }
+}
