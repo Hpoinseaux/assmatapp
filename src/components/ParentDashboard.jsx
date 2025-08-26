@@ -1,7 +1,8 @@
 import { useEffect, useState } from "react";
 import { supabase } from "../supabaseClient";
 
-export default function ParentDashboard({ user }) {
+export default function ParentDashboard() {
+  const [user, setUser] = useState(null);
   const [enfant, setEnfant] = useState("");
   const [date, setDate] = useState(new Date().toISOString().split("T")[0]);
   const [suivi, setSuivi] = useState([]);
@@ -9,72 +10,78 @@ export default function ParentDashboard({ user }) {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
-  // Charger l'enfant lié au parent
+  // Récupérer l'utilisateur connecté
+  useEffect(() => {
+    const fetchUser = async () => {
+      const { data } = await supabase.auth.getUser();
+      setUser(data.user);
+    };
+    fetchUser();
+  }, []);
+
+  // Récupérer l'enfant lié au parent
   useEffect(() => {
     const fetchEnfant = async () => {
       if (!user) return;
+
       const { data, error } = await supabase
         .from("profiles")
         .select("enfant")
         .eq("user_id", user.id)
         .single();
 
-      if (error) setError("Impossible de récupérer l'enfant");
-      else setEnfant(data.enfant);
+      if (error) {
+        setError("Impossible de récupérer l'enfant");
+      } else {
+        setEnfant(data.enfant);
+      }
     };
 
     fetchEnfant();
   }, [user]);
 
-  // Fonction pour charger suivi et présence
-  const fetchData = async () => {
-    if (!enfant) return;
-    try {
-      setLoading(true);
-      setError(null);
-
-      const { data: suiviData, error: suiviError } = await supabase
-        .from("suivi")
-        .select("*")
-        .eq("enfant", enfant)
-        .eq("date", date)
-        .order("heure", { ascending: false });
-
-      const { data: presenceData, error: presenceError } = await supabase
-        .from("presence")
-        .select("*")
-        .eq("enfant", enfant)
-        .eq("date", date)
-        .order("heure_arrive", { ascending: false });
-
-      if (suiviError || presenceError) {
-        setError("Erreur lors du chargement des données");
-      } else {
-        setSuivi(suiviData || []);
-        setPresence(presenceData || []);
-      }
-    } catch (err) {
-      setError(err.message);
-    } finally {
-      setLoading(false);
-    }
-  };
-
+  // Charger suivi et présence
   useEffect(() => {
+    const fetchData = async () => {
+      if (!enfant) return;
+
+      try {
+        setLoading(true);
+        setError(null);
+
+        const { data: suiviData, error: suiviError } = await supabase
+          .from("suivi")
+          .select("*")
+          .eq("enfant", enfant)
+          .eq("date", date)
+          .order("heure", { ascending: false });
+
+        const { data: presenceData, error: presenceError } = await supabase
+          .from("presence")
+          .select("*")
+          .eq("enfant", enfant)
+          .eq("date", date)
+          .order("heure_arrive", { ascending: false });
+
+        if (suiviError || presenceError) {
+          setError("Erreur lors du chargement des données");
+        } else {
+          setSuivi(suiviData || []);
+          setPresence(presenceData || []);
+        }
+      } catch (err) {
+        setError(err.message);
+      } finally {
+        setLoading(false);
+      }
+    };
+
     fetchData();
   }, [enfant, date]);
 
-  if (loading) return (
-    <div className="flex items-center justify-center py-8">
-      <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-gray-900"></div>
-    </div>
-  );
+  if (loading) return <div>Chargement...</div>;
+  if (error) return <div className="text-red-600">{error}</div>;
 
-  if (error) return (
-    <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded">
-      {error}
-    </div>
-  );
 
   return (
     <div className="p-4 md:p-6">

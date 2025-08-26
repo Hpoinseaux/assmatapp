@@ -49,10 +49,11 @@ export default function AjouterPresence({ onPresenceAdded, enfant }) {
         const { data, error } = await supabase
           .from(table)
           .insert({
+            enfant,
             date,
             heure_arrive: heureArrivee,
-            heure_depart: '00:00',  // Valeur par défaut
-            enfant,
+            heure_depart: '00:00',
+            duree: '00:00',  // Valeur par défaut
           })
           .select();
 
@@ -84,8 +85,8 @@ export default function AjouterPresence({ onPresenceAdded, enfant }) {
 
         const { data: presenceData, error: presenceError } = await supabase
           .from(table)
-          .eq("enfant", enfant)
           .select('*')
+          .eq("enfant", enfant)
           .eq('date', date)
           .eq('heure_arrive', heureArrivee);
 
@@ -106,7 +107,8 @@ export default function AjouterPresence({ onPresenceAdded, enfant }) {
         const { error: updateError } = await supabase
           .from(table)
           .update({
-            heure_depart: heureDepart
+            heure_depart: heureDepart,
+            duree: heureDepart - heureArrivee
           })
           .eq('id', entry.id);
 
