@@ -70,9 +70,6 @@ export default function NounouDashboard() {
               <option value="nate">Nate</option>
               <option value="sebastien">Sebastien</option>
             </select>
-            <input type="date" value={date} onChange={e => setDate(e.target.value)}
-                   max={new Date().toISOString().split("T")[0]} className="border rounded px-2 py-1"/>
-            <button onClick={() => { fetchSuivi(); fetchPresence(); }} className="px-4 py-1 bg-pink-500 text-white rounded hover:bg-pink-600">Voir</button>
           </div>
         </div>
 
@@ -85,6 +82,14 @@ export default function NounouDashboard() {
             <p>Aucun suivi pour cette date.</p>
           ) : (
             <div className="space-y-2">
+              <select value={enfant} onChange={e => setEnfant(e.target.value)} className="rounded border px-2 py-1">
+                <option value="caly">Caly</option>
+                <option value="nate">Nate</option>
+                <option value="sebastien">Sebastien</option>
+              </select>
+              <input type="date" value={date} onChange={e => setDate(e.target.value)}
+                     max={new Date().toISOString().split("T")[0]} className="border rounded px-2 py-1"/>
+              <button onClick={() => { fetchSuivi(); fetchPresence(); }} className="px-4 py-1 bg-pink-500 text-white rounded hover:bg-pink-600">Voir</button>
               {suivi.map(item => (
                 <div key={item.id} className="p-3 bg-gray-50 rounded flex justify-between items-center">
                   <span>{item.heure}</span>
