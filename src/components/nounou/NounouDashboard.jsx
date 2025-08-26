@@ -2,14 +2,13 @@ import { useEffect, useState } from "react";
 import { supabase } from "../../supabaseClient";
 import AjouterSuivi from "./AjouterSuivi";
 import AjouterPresence from "./AjouterPresence";
-import AjouterPhoto from "./AjouterPhoto";
+
 
 export default function NounouDashboard() {
   // États
   const [enfant, setEnfant] = useState("caly");
   const [suivi, setSuivi] = useState([]);
   const [presence, setPresence] = useState([]);
-  const [photos, setPhotos] = useState([]);
   const [editingItem, setEditingItem] = useState(null);
   const [editingPresence, setEditingPresence] = useState(null);
   const [message, setMessage] = useState("");
@@ -23,8 +22,9 @@ export default function NounouDashboard() {
       setLoading(true);
       const today = new Date().toISOString().split("T")[0];
       const { data, error } = await supabase
-        .from(`suivi_${enfant}`)
+        .from("suivi")
         .select("*")
+        .eq("enfant", enfant)
         .eq("date", today)
         .order("heure", { ascending: false });
 
@@ -45,8 +45,9 @@ export default function NounouDashboard() {
       setLoading(true);
       const today = new Date().toISOString().split("T")[0];
       const { data, error } = await supabase
-        .from(`presence_${enfant}`)
+        .from("presence")
         .select("*")
+        .eq("enfant", enfant)
         .eq("date", today)
         .order("heure_arrive", { ascending: false });
 
@@ -62,30 +63,11 @@ export default function NounouDashboard() {
     }
   };
 
-  const fetchPhotos = async () => {
-    try {
-      setLoading(true);
-      const { data, error } = await supabase
-        .from(`photos_${enfant}`)
-        .select("*")
-        .order("created_at", { ascending: false });
-
-      if (error) throw error;
-      setPhotos(data || []);
-      setError(null);
-    } catch (err) {
-      setError(err.message || "Erreur lors du chargement des photos");
-      setPhotos([]);
-    } finally {
-      setLoading(false);
-    }
-  };
 
   // Chargement initial
   useEffect(() => {
     fetchSuivi();
     fetchPresence();
-    fetchPhotos();
   }, [enfant]);
 
   // Gestion des actions
@@ -93,7 +75,7 @@ export default function NounouDashboard() {
     if (window.confirm("Voulez-vous vraiment supprimer ce suivi ?")) {
       try {
         const { error } = await supabase
-          .from(`suivi_${enfant}`)
+          .from("suivi")
           .delete()
           .eq("id", id);
 
@@ -110,7 +92,7 @@ export default function NounouDashboard() {
     if (window.confirm("Voulez-vous vraiment supprimer cette présence ?")) {
       try {
         const { error } = await supabase
-          .from(`presence_${enfant}`)
+          .from("presence")
           .delete()
           .eq("id", id);
 
@@ -123,22 +105,6 @@ export default function NounouDashboard() {
     }
   };
 
-  const handleDeletePhoto = async (id) => {
-    if (window.confirm("Voulez-vous vraiment supprimer cette photo ?")) {
-      try {
-        const { error } = await supabase
-          .from(`photos_${enfant}`)
-          .delete()
-          .eq("id", id);
-
-        if (error) throw error;
-        await fetchPhotos();
-        setMessage("Photo supprimée avec succès");
-      } catch (err) {
-        setError(err.message || "Erreur lors de la suppression de la photo");
-      }
-    }
-  };
 
   // Rendu JSX
   return (
@@ -165,6 +131,7 @@ export default function NounouDashboard() {
               >
                 <option value="caly">Caly</option>
                 <option value="nate">Nate</option>
+                <option value="sebastien">Sebastien</option>
               </select>
             </div>
           </div>
@@ -323,51 +290,6 @@ export default function NounouDashboard() {
                   ))}
                 </tbody>
               </table>
-            </div>
-          )}
-        </div>
-
-        {/* Section Photos */}
-        <div className="bg-white rounded-xl shadow-lg p-6 mb-8">
-          <h2 className="text-2xl font-semibold mb-4 text-pink-600">
-            Galerie photos
-          </h2>
-          <p className="text-gray-600 mb-6">
-            Partagez les moments importants de la journée
-          </p>
-          
-          <AjouterPhoto enfant={enfant} onAjout={fetchPhotos} />
-          
-          {loading ? (
-            <div className="flex justify-center py-8">
-              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-pink-600"></div>
-            </div>
-          ) : error ? (
-            <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded">
-              {error}
-            </div>
-          ) : photos.length === 0 ? (
-            <p className="text-gray-500 text-center py-8">Aucune photo partagée pour le moment</p>
-          ) : (
-            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 mt-6">
-              {photos.map((photo) => (
-                <div key={photo.id} className="relative group">
-                  <img
-                    src={photo.url}
-                    alt={`Photo de ${enfant}`}
-                    className="w-full h-48 object-cover rounded-lg hover:opacity-90 transition-opacity"
-                  />
-                  <button
-                    onClick={() => handleDeletePhoto(photo.id)}
-                    className="absolute top-2 right-2 bg-red-500 text-white rounded-full p-1 opacity-0 group-hover:opacity-100 transition-opacity"
-                    aria-label="Supprimer la photo"
-                  >
-                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                    </svg>
-                  </button>
-                </div>
-              ))}
             </div>
           )}
         </div>

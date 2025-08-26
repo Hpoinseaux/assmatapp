@@ -34,7 +34,7 @@ export default function AjouterSuivi({ onAjoute, enfant }) {
     setError(null);
 
     try {
-      console.log('Insertion dans la table:', `suivi_${enfant}`);
+      console.log('Insertion dans la table:', `suivi`);
       console.log('Données à insérer:', {
         date,
         heure,
@@ -44,12 +44,13 @@ export default function AjouterSuivi({ onAjoute, enfant }) {
       });
 
       const { data, error } = await supabase
-        .from(`suivi_${enfant}`)
+        .from("suivi")
         .insert({
           date,
           heure,
           activite,
-          observation
+          observation,
+          enfant,
         })
         .select();
 

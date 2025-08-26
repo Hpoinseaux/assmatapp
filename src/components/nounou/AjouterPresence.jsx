@@ -15,7 +15,7 @@ export default function AjouterPresence({ onPresenceAdded, enfant }) {
     setLoading(true);
     setError(null);
 
-    const table = `presence_${enfant}`;
+    const table = "presence";
 
     if (etape === 1) {
       // Étape 1 : Enregistrer l'heure d'arrivée
@@ -30,7 +30,8 @@ export default function AjouterPresence({ onPresenceAdded, enfant }) {
 
         // Vérifier s'il existe déjà une entrée pour cette date/heure d'arrivée
         const { data: existingData, error: searchError } = await supabase
-          .from(`presence_${enfant}`)
+          .from(table)
+          .eq("enfant", enfant)
           .select('*')
           .eq('date', date)
           .eq('heure_arrive', heureArrivee);
@@ -46,12 +47,12 @@ export default function AjouterPresence({ onPresenceAdded, enfant }) {
 
         // Si pas d'entrée existante, créer une nouvelle entrée avec heure_depart NULL
         const { data, error } = await supabase
-          .from(`presence_${enfant}`)
+          .from(table)
           .insert({
             date,
             heure_arrive: heureArrivee,
             heure_depart: '00:00',  // Valeur par défaut
-            duree: null
+            enfant,
           })
           .select();
 
@@ -82,7 +83,8 @@ export default function AjouterPresence({ onPresenceAdded, enfant }) {
         console.log('Mise à jour:', { date, heure_arrive: heureArrivee, heure_depart: heureDepart });
 
         const { data: presenceData, error: presenceError } = await supabase
-          .from(`presence_${enfant}`)
+          .from(table)
+          .eq("enfant", enfant)
           .select('*')
           .eq('date', date)
           .eq('heure_arrive', heureArrivee);
@@ -102,7 +104,7 @@ export default function AjouterPresence({ onPresenceAdded, enfant }) {
         console.log('Données trouvées:', presenceData);
 
         const { error: updateError } = await supabase
-          .from(`presence_${enfant}`)
+          .from(table)
           .update({
             heure_depart: heureDepart
           })

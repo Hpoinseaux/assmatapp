@@ -1,89 +1,61 @@
 import { useEffect, useState } from "react";
 import { supabase } from "../supabaseClient";
 
-export default function ParentDashboard() {
-  const [enfant, setEnfant] = useState(() => {
-    const savedEnfant = localStorage.getItem('enfant');
-    return savedEnfant || '';
-  });
-
+export default function ParentDashboard({ user }) {
+  const [enfant, setEnfant] = useState("");
   const [date, setDate] = useState(new Date().toISOString().split("T")[0]);
   const [suivi, setSuivi] = useState([]);
   const [presence, setPresence] = useState([]);
-  const [photos, setPhotos] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
+  // Charger l'enfant depuis profiles
   useEffect(() => {
-    if (!enfant) {
-      window.location.href = '/'; // Redirection vers la page de connexion si pas d'enfant
-    }
-  }, [enfant]);
+    const fetchEnfant = async () => {
+      const { data, error } = await supabase
+        .from("profiles")
+        .select("enfants")
+        .eq("id", user.id)  // l'id de l'utilisateur connecté
+        .single();
 
+      if (error) {
+        setError("Impossible de récupérer l'enfant lié au profil");
+      } else {
+        setEnfant(data.enfants); // valeur texte
+      }
+    };
+
+    if (user?.id) fetchEnfant();
+  }, [user]);
+
+  // Charger suivi et présence
   const fetchData = async () => {
-    if (!enfant) {
-      setError('Enfant non trouvé');
-      return;
-    }
+    if (!enfant) return;
 
     try {
       setLoading(true);
       setError(null);
 
-      console.log('ID de l\'enfant:', enfant);
-      
-      // Vérifier si l\'enfant existe dans la base de données
-      const { data: profile, error: profileError } = await supabase
-        .from('profiles')
-        .select('role')
-        .eq('enfant', enfant)
-        .single();
+      const { data: suiviData, error: suiviError } = await supabase
+        .from("suivi")
+        .select("*")
+        .eq("enfant", enfant)
+        .eq("date", date)
+        .order("heure", { ascending: false });
 
-      if (profileError) {
-        console.error('Erreur lors de la vérification du profil:', profileError);
-        setError('Erreur: Enfant non trouvé dans la base de données');
-        return;
-      }
+      if (suiviError) throw suiviError;
 
-      // Construire les noms des tables
-      const suiviTable = `suivi_${enfant}`;
-      const presenceTable = `presence_${enfant}`;
-      const photosTable = `photos_${enfant}`;
+      const { data: presenceData, error: presenceError } = await supabase
+        .from("presence")
+        .select("*")
+        .eq("enfant", enfant)
+        .eq("date", date)
+        .order("heure_arrive", { ascending: false });
 
-      console.log('Tables à charger:', { suiviTable, presenceTable, photosTable });
+      if (presenceError) throw presenceError;
 
-      const [suiviRes, presenceRes, photosRes] = await Promise.all([
-        supabase.from(suiviTable)
-          .select("*")
-          .eq("date", date)
-          .order("heure", { ascending: false }),
-        supabase.from(presenceTable)
-          .select("*")
-          .eq("date", date)
-          .order("heure_arrive", { ascending: false }),
-        supabase.from(photosTable).select("*").order("date", { ascending: false }),
-      ]);
-
-      // Afficher les erreurs spécifiques
-      if (suiviRes.error) {
-        console.error('Erreur suivi:', suiviRes.error);
-      }
-      if (presenceRes.error) {
-        console.error('Erreur présence:', presenceRes.error);
-      }
-      if (photosRes.error) {
-        console.error('Erreur photos:', photosRes.error);
-      }
-
-      // Utiliser les données même si certaines requêtes échouent
-      setSuivi(suiviRes.data || []);
-      setPresence(presenceRes.data || []);
-      setPhotos(photosRes.data || []);
-
-      // Afficher un message d'erreur spécifique si toutes les requêtes échouent
-      if (suiviRes.error && presenceRes.error && photosRes.error) {
-        setError('Erreur lors du chargement des données');
-      }
+      setSuivi(suiviData || []);
+      setPresence(presenceData || []);
     } catch (err) {
       setError(err.message);
     } finally {
@@ -92,7 +64,7 @@ export default function ParentDashboard() {
   };
 
   useEffect(() => {
-    fetchData();
+    if (enfant) fetchData();
   }, [enfant, date]);
 
   if (loading) {
@@ -115,10 +87,10 @@ export default function ParentDashboard() {
     <div className="p-4 md:p-6">
       <div className="bg-white rounded-xl shadow-sm p-6 mb-6">
         <h1 className="text-2xl font-bold text-gray-800 mb-2">Tableau de bord parent</h1>
-        <p className="text-gray-600">Bienvenue dans l'espace de suivi de votre {enfant}</p>
+        <p className="text-gray-600">Bienvenue dans l'espace de suivi de {enfant}</p>
       </div>
-      <div className="flex justify-between items-center mb-6">
 
+      <div className="flex justify-between items-center mb-6">
         <div className="flex items-center gap-2">
           <button
             onClick={fetchData}
@@ -171,36 +143,12 @@ export default function ParentDashboard() {
               <div key={item.id} className="p-4 bg-white rounded-lg border border-gray-100 shadow-sm">
                 <div className="text-center text-sm">
                   <span className="font-medium text-gray-700">
-                    {item.heure_arrive || '--:--'}
+                    {item.heure_arrive || "--:--"}
                   </span>
                   <span className="mx-2 text-gray-400">—</span>
                   <span className="font-medium text-gray-700">
-                    {item.heure_depart || '--:--'}
+                    {item.heure_depart || "--:--"}
                   </span>
-                </div>
-              </div>
-            ))}
-          </div>
-        )}
-      </section>
-
-      <section>
-        <h2 className="text-xl font-semibold mt-6">Photos</h2>
-        {photos.length === 0 ? (
-          <p className="text-gray-500">Aucune photo.</p>
-        ) : (
-          <div className="grid grid-cols-3 gap-4 mt-2">
-            {photos.map((photo) => (
-              <div key={photo.id} className="relative group">
-                <img
-                  src={photo.url}
-                  alt={`Photo du ${photo.date}`}
-                  className="rounded w-full h-48 object-cover"
-                />
-                <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-50 transition-opacity rounded">
-                  <div className="absolute bottom-0 left-0 right-0 p-2">
-                    <p className="text-white text-sm">{photo.date}</p>
-                  </div>
                 </div>
               </div>
             ))}
