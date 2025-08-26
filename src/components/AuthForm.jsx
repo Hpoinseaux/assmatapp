@@ -48,7 +48,7 @@ export default function AuthForm() {
       console.log('Profil trouvé:', profile);
 
       // Laisse AuthWrapper gérer la redirection en fonction du rôle
-      navigate('/');
+      navigate('/login');
 
     } catch (err) {
       console.error('Erreur lors de la connexion:', err);

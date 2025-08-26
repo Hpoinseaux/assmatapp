@@ -55,8 +55,8 @@ function App() {
       <div style={contentStyle} className="content-container">
         <Router>
           <Routes>
-            <Route path="/login" element={<AuthForm />} />
-            <Route path="/" element={<AuthWrapper />} />
+            <Route path="/" element={<AuthForm />} />
+            <Route path="/login" element={<AuthWrapper />} />
             <Route path="/nounou" element={<NounouDashboard />} />
             <Route path="/parent/:enfant" element={<ParentDashboard />} />
           </Routes>

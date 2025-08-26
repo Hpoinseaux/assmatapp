@@ -23,7 +23,7 @@ export default function AuthWrapper() {
   }
 
   if (!session || !profile) {
-    return <Navigate to="/login" replace />;
+    return <Navigate to="/" replace />;
   }
 
   // Redirection selon rôle
