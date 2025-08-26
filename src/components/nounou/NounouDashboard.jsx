@@ -78,29 +78,40 @@ export default function NounouDashboard() {
         {/* Header */}
         <div className="bg-white rounded-xl shadow-lg p-6 flex flex-col md:flex-row justify-between items-center gap-4">
           <h1 className="text-3xl font-bold text-pink-600">Tableau de bord Nounou</h1>
-          <div className="flex gap-2 flex-col sm:flex-row items-center">
-            <select
-              value={enfant}
-              onChange={e => setEnfant(e.target.value)}
-              className="rounded border px-3 py-2"
-            >
-              <option value="caly">Caly</option>
-              <option value="nate">Nate</option>
-              <option value="sebastien">Sebastien</option>
-            </select>
-            <input
-              type="date"
-              value={date}
-              onChange={e => setDate(e.target.value)}
-              max={new Date().toISOString().split("T")[0]}
-              className="border rounded px-3 py-2"
-            />
-            <button
-              onClick={() => { fetchSuivi(); fetchPresence(); }}
-              className="px-4 py-2 bg-pink-500 text-white rounded hover:bg-pink-600"
-            >
-              Voir
-            </button>
+          <div className="bg-white rounded-xl shadow-lg p-6 flex items-center w-full">
+            {/* Select enfant à gauche */}
+            <div>
+              <select
+                value={enfant}
+                onChange={e => setEnfant(e.target.value)}
+                className="rounded border px-3 py-2"
+              >
+                <option value="caly">Caly</option>
+                <option value="nate">Nate</option>
+                <option value="sebastien">Sebastien</option>
+              </select>
+            </div>
+
+            {/* Input date au centre */}
+            <div className="mx-auto">
+              <input
+                type="date"
+                value={date}
+                onChange={e => setDate(e.target.value)}
+                max={new Date().toISOString().split("T")[0]}
+                className="border rounded px-3 py-2"
+              />
+            </div>
+
+            {/* Bouton Voir à droite */}
+            <div>
+              <button
+                onClick={() => { fetchSuivi(); fetchPresence(); }}
+                className="px-4 py-2 bg-pink-500 text-white rounded hover:bg-pink-600"
+              >
+                Voir
+              </button>
+            </div>
           </div>
         </div>
 
@@ -115,18 +126,30 @@ export default function NounouDashboard() {
           ) : (
             <div className="space-y-2">
               {suivi.map(item => (
-                <div key={item.id} className="p-3 bg-gray-50 rounded flex justify-between items-center gap-4">
+                <div
+                  key={item.id}
+                  className="p-3 bg-gray-50 rounded flex items-center justify-between gap-4"
+                >
+                  {/* Heure à gauche */}
                   <div className="w-20 text-gray-700 font-medium">{item.heure}</div>
+
+                  {/* Activité et observation au centre */}
                   <div className="flex-1 flex flex-col md:flex-row justify-between items-center gap-4">
-                    <span className="px-2 py-1 bg-green-100 text-green-800 rounded">{item.activite}</span>
+                    <span className="px-2 py-1 bg-green-100 text-green-800 rounded">
+                      {item.activite}
+                    </span>
                     <span className="text-gray-700">{item.observation || "Pas d'observation"}</span>
                   </div>
-                  <button
-                    onClick={() => handleDeleteSuivi(item.id)}
-                    className="px-3 py-1 bg-red-500 text-white rounded hover:bg-red-600"
-                  >
-                    Supprimer
-                  </button>
+
+                  {/* Bouton Supprimer à droite */}
+                  <div>
+                    <button
+                      onClick={() => handleDeleteSuivi(item.id)}
+                      className="px-3 py-1 bg-red-500 text-white rounded hover:bg-red-600"
+                    >
+                      Supprimer
+                    </button>
+                  </div>
                 </div>
               ))}
             </div>
@@ -144,11 +167,23 @@ export default function NounouDashboard() {
           ) : (
             <div className="space-y-2">
               {presence.map(item => (
-                <div key={item.id} className="p-3 bg-gray-50 rounded flex justify-between items-center gap-6">
-                  <div className="w-32 text-gray-700 font-medium">{item.date ? new Date(item.date).toLocaleDateString('fr-FR') : "Date inconnue"}</div>
-                  <div className="flex gap-4">
-                    <span className="text-green-700 font-medium">{item.heure_arrive || "--:--"}</span>
-                    <span className="text-red-700 font-medium">{item.heure_depart || "--:--"}</span>
+                <div
+                  key={item.id}
+                  className="p-3 bg-gray-50 rounded flex items-center justify-between"
+                >
+                  {/* Date à gauche */}
+                  <div className="w-32 text-gray-700 font-medium text-left">
+                    {item.date ? new Date(item.date).toLocaleDateString('fr-FR') : "Date inconnue"}
+                  </div>
+
+                  {/* Heure d'arrivée au centre */}
+                  <div className="flex-1 text-center text-green-700 font-medium">
+                    {item.heure_arrive || "--:--"}
+                  </div>
+
+                  {/* Heure de départ à droite */}
+                  <div className="w-32 text-right text-red-700 font-medium">
+                    {item.heure_depart || "--:--"}
                   </div>
                 </div>
               ))}

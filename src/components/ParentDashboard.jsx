@@ -89,14 +89,17 @@ export default function ParentDashboard() {
       </div>
   
       {/* Filtre par date */}
-      <div className="flex flex-col sm:flex-row items-center gap-4">
+      <div className="flex w-full items-center gap-4">
+        {/* Date à gauche */}
         <input
           type="date"
           value={date}
           onChange={(e) => setDate(e.target.value)}
-          className="border px-3 py-2 rounded-lg focus:ring-2 focus:ring-blue-400 focus:border-blue-400"
+          className="border px-3 py-2 rounded-lg focus:ring-2 focus:ring-blue-400 focus:border-blue-400 flex-1"
           max={new Date().toISOString().split("T")[0]}
         />
+
+        {/* Bouton à droite */}
         <button
           onClick={fetchData}
           className="px-6 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors"
@@ -104,6 +107,7 @@ export default function ParentDashboard() {
           Voir
         </button>
       </div>
+
   
       {/* Suivi */}
       <section>
@@ -111,20 +115,24 @@ export default function ParentDashboard() {
         {suivi.length === 0 ? (
           <p className="text-gray-500">Aucun suivi pour cette date.</p>
         ) : (
-          <div className="grid grid-cols-1 gap-4">
+          <div className="space-y-2">
             {suivi.map((item) => (
               <div
                 key={item.id}
-                className="p-4 bg-white rounded-lg border border-gray-200 shadow-sm flex flex-col md:flex-row justify-between items-center gap-4 hover:shadow-md transition-shadow"
+                className="p-4 bg-white rounded-lg border border-gray-200 shadow-sm flex justify-between items-center hover:shadow-md transition-shadow"
               >
-                {/* Heure */}
-                <div className="w-20 text-center md:text-left">
+                {/* Heure à gauche */}
+                <div className="w-24 text-left">
                   <span className="text-gray-700 font-semibold">{item.heure}</span>
                 </div>
-  
-                {/* Activité et Observation */}
-                <div className="flex-1 flex flex-col md:flex-row md:justify-between gap-4">
+
+                {/* Activité au centre */}
+                <div className="flex-1 text-center">
                   <span className="px-3 py-1 bg-green-100 text-green-800 rounded font-medium">{item.activite}</span>
+                </div>
+
+                {/* Observation à droite */}
+                <div className="w-1/3 text-right">
                   <span className="text-gray-700">{item.observation || "Pas d'observation"}</span>
                 </div>
               </div>
@@ -139,13 +147,30 @@ export default function ParentDashboard() {
         {presence.length === 0 ? (
           <p className="text-gray-500">Aucune présence pour cette date.</p>
         ) : (
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <div className="space-y-2">
             {presence.map((item) => (
-              <div key={item.id} className="p-4 bg-white rounded-lg border border-gray-200 shadow-sm flex justify-between items-center">
-                <span className="text-gray-600 font-medium">{item.date ? new Date(item.date).toLocaleDateString('fr-FR') : "Date inconnue"}</span>
-                <div className="flex gap-4">
-                  <span className="text-green-700 font-medium">{item.heure_arrive || "--:--"}</span>
-                  <span className="text-red-700 font-medium">{item.heure_depart || "--:--"}</span>
+              <div
+                key={item.id}
+                className="p-4 bg-white rounded-lg border border-gray-200 shadow-sm flex justify-between items-center hover:shadow-md transition-shadow"
+              >
+                {/* Date à gauche */}
+                <div className="w-32 text-left text-gray-700 font-medium">
+                  {item.date ? new Date(item.date).toLocaleDateString("fr-FR") : "Date inconnue"}
+                </div>
+
+                {/* Heure arrivée au centre gauche */}
+                <div className="w-24 text-center text-green-700 font-medium">
+                  {item.heure_arrive || "--:--"}
+                </div>
+
+                {/* Heure départ au centre droit */}
+                <div className="w-24 text-center text-red-700 font-medium">
+                  {item.heure_depart || "--:--"}
+                </div>
+
+                {/* Durée à droite */}
+                <div className="w-32 text-right text-gray-700 font-medium">
+                  {item.duree || "--:--"}
                 </div>
               </div>
             ))}
