@@ -1,5 +1,5 @@
 import { useAuth } from '../contexts/AuthProvider';
-import { useProfile } from '../hooks/useProfile';
+import  useProfile  from '../hooks/useProfile';
 import { Navigate } from 'react-router-dom';
 
 export default function AuthWrapper() {
@@ -23,7 +23,7 @@ export default function AuthWrapper() {
   }
 
   if (!session || !profile) {
-    return <Navigate to="/" replace />;
+    return <Navigate to="/login" replace />;
   }
 
   // Redirection selon rôle
