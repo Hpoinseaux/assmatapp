@@ -20,50 +20,36 @@ export default function AuthForm() {
       setLoading(true);
       setError(null);
       
-      // Connexion directe avec supabase
+      // Connexion avec supabase
       const { data, error } = await supabase.auth.signInWithPassword({
         email,
         password,
       });
       
-      console.log('Résultat de la connexion:', { data, error });
-      
       if (error) throw error;
-      
-      if (data && data.session) {
-        console.log('Utilisateur connecté:', data.session.user);
-        
-        // Récupérer le profil pour déterminer le rôle
-        const { data: profile, error: profileError } = await supabase
-          .from('profiles')
-          .select('role, enfant')
-          .eq('user_id', data.session.user.id)
-          .single();
-
-        console.log('Résultat de la requête profil:', { profile, profileError });
-
-        if (profile) {
-          console.log('Profil trouvé:', profile);
-          
-          // Stocker l'enfant dans le localStorage
-          if (profile.enfant) {
-            localStorage.setItem('enfant', profile.enfant);
-          }
-          
-          // Redirection selon le rôle
-          if (profile.role === 'nounou') {
-            navigate('/nounou');
-          } else if (profile.role === 'parent') {
-            navigate(`/parent/${profile.enfant}`);
-          } else {
-            setError('Rôle non reconnu');
-          }
-        } else {
-          setError('Profil non trouvé');
-        }
-      } else {
+      if (!data || !data.session) {
         setError('Utilisateur non trouvé');
+        return;
       }
+      
+      // Vérification profil
+      const { data: profile, error: profileError } = await supabase
+        .from('profiles')
+        .select('role, enfant')   // ✅ colonne au singulier
+        .eq('user_id', data.session.user.id)
+        .single();
+
+      if (profileError) throw profileError;
+      if (!profile) {
+        setError('Profil non trouvé');
+        return;
+      }
+
+      console.log('Profil trouvé:', profile);
+
+      // Laisse AuthWrapper gérer la redirection en fonction du rôle
+      navigate('/');
+
     } catch (err) {
       console.error('Erreur lors de la connexion:', err);
       setError(err.message || 'Erreur lors de la connexion');

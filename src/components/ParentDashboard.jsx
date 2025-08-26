@@ -14,14 +14,14 @@ export default function ParentDashboard({ user }) {
     const fetchEnfant = async () => {
       const { data, error } = await supabase
         .from("profiles")
-        .select("enfants")
+        .select("enfant")
         .eq("id", user.id)  // l'id de l'utilisateur connecté
         .single();
 
       if (error) {
         setError("Impossible de récupérer l'enfant lié au profil");
       } else {
-        setEnfant(data.enfants); // valeur texte
+        setEnfant(data.enfant); // valeur texte
       }
     };
 
