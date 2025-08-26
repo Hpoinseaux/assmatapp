@@ -81,62 +81,72 @@ export default function ParentDashboard() {
   }, [enfant, date])
   
   return (
-    <div className="p-4 md:p-6">
-      <div className="bg-white rounded-xl shadow-sm p-6 mb-6">
-        <h1 className="text-2xl font-bold text-gray-800 mb-2">Tableau de bord parent</h1>
-        <p className="text-gray-600">Bienvenue dans l'espace de suivi de {enfant}</p>
+    <div className="p-6 md:p-8 space-y-8">
+      {/* Header */}
+      <div className="bg-white rounded-xl shadow-md p-6">
+        <h1 className="text-3xl font-bold text-gray-800 mb-2">Tableau de bord parent</h1>
+        <p className="text-gray-600 text-lg">Bienvenue dans l'espace de suivi de <span className="font-medium">{enfant}</span></p>
       </div>
-
-      <div className="flex justify-between items-center mb-6 gap-2">
+  
+      {/* Filtre par date */}
+      <div className="flex flex-col sm:flex-row items-center gap-4">
         <input
           type="date"
           value={date}
           onChange={(e) => setDate(e.target.value)}
-          className="border px-2 py-1 rounded"
+          className="border px-3 py-2 rounded-lg focus:ring-2 focus:ring-blue-400 focus:border-blue-400"
           max={new Date().toISOString().split("T")[0]}
         />
         <button
           onClick={fetchData}
-          className="px-4 py-1 bg-blue-500 text-white rounded hover:bg-blue-600 transition-colors"
+          className="px-6 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors"
         >
           Voir
         </button>
       </div>
-
+  
       {/* Suivi */}
       <section>
-        <h2 className="text-xl font-semibold mb-4">Suivi des activités</h2>
+        <h2 className="text-2xl font-semibold mb-4 text-gray-800">Suivi des activités</h2>
         {suivi.length === 0 ? (
           <p className="text-gray-500">Aucun suivi pour cette date.</p>
         ) : (
           <div className="grid grid-cols-1 gap-4">
             {suivi.map((item) => (
-              <div key={item.id} className="p-4 bg-white rounded-lg border border-gray-100 shadow-sm hover:shadow-md transition-shadow flex justify-between items-center">
-                <div className="flex flex-col">
-                  <span className="text-gray-700 font-medium">{item.heure}</span>
+              <div
+                key={item.id}
+                className="p-4 bg-white rounded-lg border border-gray-200 shadow-sm flex flex-col md:flex-row justify-between items-center gap-4 hover:shadow-md transition-shadow"
+              >
+                {/* Heure */}
+                <div className="w-20 text-center md:text-left">
+                  <span className="text-gray-700 font-semibold">{item.heure}</span>
                 </div>
-                <div className="flex flex-col md:flex-row gap-4">
-                  <span className="px-2 py-1 bg-green-100 text-green-800 rounded">{item.activite}</span>
-                  <span className="text-gray-700">{item.observation}</span>
+  
+                {/* Activité et Observation */}
+                <div className="flex-1 flex flex-col md:flex-row md:justify-between gap-4">
+                  <span className="px-3 py-1 bg-green-100 text-green-800 rounded font-medium">{item.activite}</span>
+                  <span className="text-gray-700">{item.observation || "Pas d'observation"}</span>
                 </div>
               </div>
             ))}
           </div>
         )}
       </section>
-
+  
       {/* Présence */}
-      <section className="mt-6">
-        <h2 className="text-xl font-semibold mb-4">Présence</h2>
+      <section>
+        <h2 className="text-2xl font-semibold mb-4 text-gray-800">Présence</h2>
         {presence.length === 0 ? (
           <p className="text-gray-500">Aucune présence pour cette date.</p>
         ) : (
-          <div className="space-y-3">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             {presence.map((item) => (
-              <div key={item.id} className="p-4 bg-white rounded-lg border border-gray-100 shadow-sm text-center">
-                <span className="font-medium text-gray-700">{item.heure_arrive || "--:--"}</span>
-                <span className="mx-2 text-gray-400">—</span>
-                <span className="font-medium text-gray-700">{item.heure_depart || "--:--"}</span>
+              <div key={item.id} className="p-4 bg-white rounded-lg border border-gray-200 shadow-sm flex justify-between items-center">
+                <span className="text-gray-600 font-medium">{item.date ? new Date(item.date).toLocaleDateString('fr-FR') : "Date inconnue"}</span>
+                <div className="flex gap-4">
+                  <span className="text-green-700 font-medium">{item.heure_arrive || "--:--"}</span>
+                  <span className="text-red-700 font-medium">{item.heure_depart || "--:--"}</span>
+                </div>
               </div>
             ))}
           </div>
