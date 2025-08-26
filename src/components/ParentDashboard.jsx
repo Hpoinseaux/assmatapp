@@ -40,49 +40,46 @@ export default function ParentDashboard() {
     fetchEnfant();
   }, [user]);
 
-  // Charger suivi et présence
-  useEffect(() => {
-    const fetchData = async () => {
-      if (!enfant) return;
+  // Fonction fetchData définie séparément
+  const fetchData = async () => {
+    if (!enfant) return;
 
-      try {
-        setLoading(true);
-        setError(null);
+    try {
+      setLoading(true);
+      setError(null);
 
-        const { data: suiviData, error: suiviError } = await supabase
-          .from("suivi")
-          .select("*")
-          .eq("enfant", enfant)
-          .eq("date", date)
-          .order("heure", { ascending: false });
+      const { data: suiviData, error: suiviError } = await supabase
+        .from("suivi")
+        .select("*")
+        .eq("enfant", enfant)
+        .eq("date", date)
+        .order("heure", { ascending: false });
 
-        const { data: presenceData, error: presenceError } = await supabase
-          .from("presence")
-          .select("*")
-          .eq("enfant", enfant)
-          .eq("date", date)
-          .order("heure_arrive", { ascending: false });
+      const { data: presenceData, error: presenceError } = await supabase
+        .from("presence")
+        .select("*")
+        .eq("enfant", enfant)
+        .eq("date", date)
+        .order("heure_arrive", { ascending: false });
 
-        if (suiviError || presenceError) {
-          setError("Erreur lors du chargement des données");
-        } else {
-          setSuivi(suiviData || []);
-          setPresence(presenceData || []);
-        }
-      } catch (err) {
-        setError(err.message);
-      } finally {
-        setLoading(false);
+      if (suiviError || presenceError) {
+        setError("Erreur lors du chargement des données");
+      } else {
+        setSuivi(suiviData || []);
+        setPresence(presenceData || []);
       }
-    };
+    } catch (err) {
+      setError(err.message);
+    } finally {
+      setLoading(false);
+    }
+  };
 
+  // Appel initial des données dès qu'on a l'enfant
+  useEffect(() => {
     fetchData();
-  }, [enfant, date]);
-
-  if (loading) return <div>Chargement...</div>;
-  if (error) return <div className="text-red-600">{error}</div>;
-
-
+  }, [enfant, date])
+  
   return (
     <div className="p-4 md:p-6">
       <div className="bg-white rounded-xl shadow-sm p-6 mb-6">
