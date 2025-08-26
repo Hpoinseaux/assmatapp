@@ -2,7 +2,6 @@ import { useState } from "react";
 import { supabase } from "../../supabaseClient";
 
 export default function AjouterSuivi({ onAjoute, enfant }) {
-  // Liste des activités
   const ACTIVITES = [
     { type: 'quotidien', label: 'Repas' },
     { type: 'quotidien', label: 'Début sieste' },
@@ -18,8 +17,8 @@ export default function AjouterSuivi({ onAjoute, enfant }) {
   const [activite, setActivite] = useState("");
   const [observation, setObservation] = useState("");
   const [message, setMessage] = useState("");
-  const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
+  const [loading, setLoading] = useState(false);
 
   const resetForm = () => {
     setDate(new Date().toISOString().split("T")[0]);
@@ -34,128 +33,87 @@ export default function AjouterSuivi({ onAjoute, enfant }) {
     setError(null);
 
     try {
-      console.log('Insertion dans la table:', `suivi`);
-      console.log('Données à insérer:', {
-        date,
-        heure,
-        activite,
-        observation,
-        enfant
-      });
-
       const { data, error } = await supabase
         .from("suivi")
-        .insert({
-          date,
-          heure,
-          activite,
-          observation,
-          enfant,
-        })
+        .insert({ date, heure, activite, observation, enfant })
         .select();
 
-      if (error) {
-        console.error('Erreur:', error);
-        throw error;
-      }
-      console.log('Données insérées:', data);
+      if (error) throw error;
 
       setMessage("Suivi ajouté avec succès !");
       resetForm();
       onAjoute && onAjoute();
-    } catch (error) {
-      setError(error.message || "Erreur lors de l'enregistrement");
+    } catch (err) {
+      setError(err.message || "Erreur lors de l'enregistrement");
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-4 max-w-md bg-blue-50 rounded-xl shadow-md p-4">
-
+    <form onSubmit={handleSubmit} className="max-w-md mx-auto bg-white p-6 rounded-2xl shadow-md space-y-4">
+      {message && <div className="bg-green-100 border border-green-400 text-green-700 px-4 py-2 rounded">{message}</div>}
+      {error && <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-2 rounded">{error}</div>}
 
       <div className="grid grid-cols-2 gap-4">
-        <div className="space-y-2">
-          <label className="block text-pink-600">Date</label>
-          <input 
-            type="date" 
-            value={date} 
-            onChange={(e) => setDate(e.target.value)} 
-            required 
-            className="form-input w-full"
+        <div className="space-y-1">
+          <label className="block text-gray-700 font-medium">Date</label>
+          <input
+            type="date"
+            value={date}
+            onChange={(e) => setDate(e.target.value)}
+            className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-pink-400 focus:border-pink-400 transition"
+            required
           />
         </div>
 
-        <div className="space-y-2">
-          <label className="block text-pink-600">Heure</label>
-          <input 
-            type="time" 
-            value={heure} 
-            onChange={(e) => setHeure(e.target.value)} 
-            required 
-            className="form-input w-full"
+        <div className="space-y-1">
+          <label className="block text-gray-700 font-medium">Heure</label>
+          <input
+            type="time"
+            value={heure}
+            onChange={(e) => setHeure(e.target.value)}
+            className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-pink-400 focus:border-pink-400 transition"
+            required
           />
         </div>
       </div>
 
       <div className="grid grid-cols-2 gap-4">
-        <div className="space-y-2">
-          <label className="block text-pink-600">Activité</label>
-          <select 
-            value={activite} 
-            onChange={(e) => setActivite(e.target.value)} 
-            required 
-            className="form-input w-full"
+        <div className="space-y-1">
+          <label className="block text-gray-700 font-medium">Activité</label>
+          <select
+            value={activite}
+            onChange={(e) => setActivite(e.target.value)}
+            className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-pink-400 focus:border-pink-400 transition"
+            required
           >
             <option value="">Sélectionnez une activité</option>
-            {ACTIVITES.map((activite) => (
-              <option key={activite.label} value={activite.label}>
-                {activite.label}
-              </option>
+            {ACTIVITES.map(a => (
+              <option key={a.label} value={a.label}>{a.label}</option>
             ))}
           </select>
         </div>
 
-        <div className="space-y-2">
-          <label className="block text-pink-600">Observation</label>
+        <div className="space-y-1">
+          <label className="block text-gray-700 font-medium">Observation</label>
           <input
             type="text"
-            placeholder="Observation" 
-            value={observation} 
+            placeholder="Observation"
+            value={observation}
             onChange={(e) => setObservation(e.target.value)}
-            className="form-input w-full"
+            className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-pink-400 focus:border-pink-400 transition"
           />
         </div>
       </div>
 
-      <button 
-        type="submit" 
+      <button
+        type="submit"
         disabled={loading}
-        className="btn-primary w-full"
+        className="w-full bg-pink-500 text-white py-2 rounded-lg hover:bg-pink-600 transition disabled:opacity-50 disabled:cursor-not-allowed"
       >
-        {loading ? (
-          <>
-            <svg className="animate-spin -ml-1 mr-2 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-              <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-              <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-            </svg>
-            En cours...
-          </>
-        ) : (
-          'Ajouter l\'activité'
-        )}
+        {loading ? "En cours..." : "Ajouter l'activité"}
       </button>
-
-      {error && (
-        <div className="message-error">
-          {error}
-        </div>
-      )}
-      {message && (
-        <div className="message-success">
-          {message}
-        </div>
-      )}
     </form>
   );
 }

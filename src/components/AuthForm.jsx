@@ -19,23 +19,21 @@ export default function AuthForm() {
     try {
       setLoading(true);
       setError(null);
-      
-      // Connexion avec supabase
+
       const { data, error } = await supabase.auth.signInWithPassword({
         email,
         password,
       });
-      
+
       if (error) throw error;
       if (!data || !data.session) {
         setError('Utilisateur non trouvé');
         return;
       }
-      
-      // Vérification profil
+
       const { data: profile, error: profileError } = await supabase
         .from('profiles')
-        .select('role, enfant, user_id')   // ✅ colonne au singulier
+        .select('role, enfant, user_id')
         .eq('user_id', data.session.user.id)
         .single();
 
@@ -47,9 +45,8 @@ export default function AuthForm() {
 
       console.log('Profil trouvé:', profile);
 
-      // Laisse AuthWrapper gérer la redirection en fonction du rôle
+      // Redirection après connexion
       navigate('/login');
-
     } catch (err) {
       console.error('Erreur lors de la connexion:', err);
       setError(err.message || 'Erreur lors de la connexion');
@@ -59,61 +56,68 @@ export default function AuthForm() {
   };
 
   return (
-    <form onSubmit={handleSubmit} className="max-w-sm mx-auto p-6 bg-white rounded shadow space-y-4">
-      <h2 className="text-2xl font-bold text-center">Connexion</h2>
-      
-      {error && (
-        <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
-          {error}
-        </div>
-      )}
-
-      <div className="space-y-2">
-        <label htmlFor="email" className="block text-sm font-medium text-gray-700">
-          Email
-        </label>
-        <input
-          id="email"
-          type="email"
-          placeholder="Email"
-          className="w-full border p-2 rounded focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-          required
-          disabled={loading}
-        />
-      </div>
-
-      <div className="space-y-2">
-        <label htmlFor="password" className="block text-sm font-medium text-gray-700">
-          Mot de passe
-        </label>
-        <input
-          id="password"
-          type="password"
-          placeholder="Mot de passe"
-          className="w-full border p-2 rounded focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-          required
-          disabled={loading}
-        />
-      </div>
-
-      <button
-        type="submit"
-        className="w-full bg-blue-600 text-white py-2 rounded hover:bg-blue-700 transition disabled:opacity-50 disabled:cursor-not-allowed"
-        disabled={loading || !email || !password}
+    <div className="min-h-screen bg-gradient-to-br from-pink-50 to-blue-50 flex items-center justify-center px-4">
+      <form
+        onSubmit={handleSubmit}
+        className="w-full max-w-md bg-white rounded-2xl shadow-lg p-8 space-y-6"
       >
-        {loading ? (
-          <div className="flex items-center justify-center">
-            <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-white mr-2"></div>
-            Connexion...
+        <h2 className="text-3xl font-bold text-center text-gray-800">Connexion</h2>
+
+        {error && (
+          <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded">
+            {error}
           </div>
-        ) : (
-          'Se connecter'
         )}
-      </button>
-    </form>
+
+        <div className="space-y-4">
+          <div>
+            <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-1">
+              Email
+            </label>
+            <input
+              id="email"
+              type="email"
+              placeholder="Email"
+              className="w-full border border-gray-300 p-3 rounded-lg focus:ring-2 focus:ring-pink-400 focus:border-pink-400 transition"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              required
+              disabled={loading}
+            />
+          </div>
+
+          <div>
+            <label htmlFor="password" className="block text-sm font-medium text-gray-700 mb-1">
+              Mot de passe
+            </label>
+            <input
+              id="password"
+              type="password"
+              placeholder="Mot de passe"
+              className="w-full border border-gray-300 p-3 rounded-lg focus:ring-2 focus:ring-pink-400 focus:border-pink-400 transition"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              required
+              disabled={loading}
+            />
+          </div>
+        </div>
+
+        <button
+          type="submit"
+          className="w-full bg-pink-500 text-white py-3 rounded-xl font-semibold hover:bg-pink-600 transition disabled:opacity-50 disabled:cursor-not-allowed"
+          disabled={loading || !email || !password}
+        >
+          {loading ? (
+            <div className="flex items-center justify-center">
+              <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-white mr-2"></div>
+              Connexion...
+            </div>
+          ) : (
+            'Se connecter'
+          )}
+        </button>
+      </form>
+    </div>
   );
 }

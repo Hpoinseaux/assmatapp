@@ -19,7 +19,6 @@ export default function AjouterPresence({ onPresenceAdded, enfant }) {
 
     try {
       if (etape === 1) {
-        // Vérifier si présence déjà existante pour cet enfant/date
         const { data: existingData, error: searchError } = await supabase
           .from("presence")
           .select("*")
@@ -30,7 +29,6 @@ export default function AjouterPresence({ onPresenceAdded, enfant }) {
         if (searchError) throw searchError;
         if (existingData.length > 0) throw new Error("Cette heure d'arrivée existe déjà");
 
-        // Insérer la présence
         const { data, error: insertError } = await supabase
           .from("presence")
           .insert({
@@ -47,11 +45,9 @@ export default function AjouterPresence({ onPresenceAdded, enfant }) {
         setMessage("Heure d'arrivée enregistrée avec succès !");
         setEtape(2);
         onPresenceAdded && onPresenceAdded();
-
       } else {
         if (!heureDepart) throw new Error("L'heure de départ est obligatoire");
 
-        // Récupérer l'entrée existante
         const { data: presenceData, error: presenceError } = await supabase
           .from("presence")
           .select("*")
@@ -65,13 +61,13 @@ export default function AjouterPresence({ onPresenceAdded, enfant }) {
 
         const entry = presenceData[0];
 
-        // Calcul de la durée en minutes
         const [h1, m1] = heureArrivee.split(":").map(Number);
         const [h2, m2] = heureDepart.split(":").map(Number);
         const dureeMinutes = (h2 * 60 + m2) - (h1 * 60 + m1);
-        const duree = `00:${dureeMinutes}`; // ou autre format adapté
+        const duree = `${Math.floor(dureeMinutes / 60)
+          .toString()
+          .padStart(2, "0")}:${(dureeMinutes % 60).toString().padStart(2, "0")}`;
 
-        // Mettre à jour l'entrée
         const { error: updateError } = await supabase
           .from("presence")
           .update({
@@ -97,42 +93,73 @@ export default function AjouterPresence({ onPresenceAdded, enfant }) {
 
   return (
     <div className="p-4 max-w-md mx-auto">
-      {message && <div className="text-green-700 mb-2">{message}</div>}
-      {error && <div className="text-red-700 mb-2">{error}</div>}
+      {message && (
+        <div className="bg-green-100 border border-green-400 text-green-700 px-4 py-2 rounded mb-3">
+          {message}
+        </div>
+      )}
+      {error && (
+        <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-2 rounded mb-3">
+          {error}
+        </div>
+      )}
 
-      <form onSubmit={handleSubmit} className="space-y-4 bg-blue-50 p-4 rounded-lg shadow">
+      <form
+        onSubmit={handleSubmit}
+        className="space-y-4 bg-white p-6 rounded-2xl shadow-md"
+      >
         <div>
-          <label className="block text-pink-600 mb-1">Date</label>
-          <input type="date" value={date} onChange={e => setDate(e.target.value)}
-                 className="border rounded px-2 py-1 w-full" required />
+          <label className="block text-gray-700 font-medium mb-1">Date</label>
+          <input
+            type="date"
+            value={date}
+            onChange={(e) => setDate(e.target.value)}
+            className="w-full border border-gray-300 px-3 py-2 rounded-lg focus:ring-2 focus:ring-pink-400 focus:border-pink-400 transition"
+            required
+          />
         </div>
 
         {etape === 1 && (
           <div>
-            <label className="block text-pink-600 mb-1">Heure d'arrivée</label>
-            <input type="time" value={heureArrivee} onChange={e => setHeureArrivee(e.target.value)}
-                   className="border rounded px-2 py-1 w-full" required />
+            <label className="block text-gray-700 font-medium mb-1">Heure d'arrivée</label>
+            <input
+              type="time"
+              value={heureArrivee}
+              onChange={(e) => setHeureArrivee(e.target.value)}
+              className="w-full border border-gray-300 px-3 py-2 rounded-lg focus:ring-2 focus:ring-pink-400 focus:border-pink-400 transition"
+              required
+            />
           </div>
         )}
 
         {etape === 2 && (
           <div>
-            <label className="block text-pink-600 mb-1">Heure de départ</label>
-            <input type="time" value={heureDepart} onChange={e => setHeureDepart(e.target.value)}
-                   className="border rounded px-2 py-1 w-full" required />
+            <label className="block text-gray-700 font-medium mb-1">Heure de départ</label>
+            <input
+              type="time"
+              value={heureDepart}
+              onChange={(e) => setHeureDepart(e.target.value)}
+              className="w-full border border-gray-300 px-3 py-2 rounded-lg focus:ring-2 focus:ring-pink-400 focus:border-pink-400 transition"
+              required
+            />
           </div>
         )}
 
-        <div className="flex justify-end gap-2">
+        <div className="flex justify-end gap-3">
           {etape === 2 && (
-            <button type="button" onClick={() => { setEtape(1); setHeureDepart(""); }}
-                    className="bg-gray-500 text-white px-4 py-2 rounded hover:bg-gray-600">
+            <button
+              type="button"
+              onClick={() => { setEtape(1); setHeureDepart(""); }}
+              className="px-4 py-2 rounded-lg bg-gray-500 text-white hover:bg-gray-600 transition"
+            >
               Nouvelle arrivée
             </button>
           )}
-          <button type="submit"
-                  disabled={loading}
-                  className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600">
+          <button
+            type="submit"
+            disabled={loading}
+            className="px-4 py-2 rounded-lg bg-pink-500 text-white hover:bg-pink-600 transition disabled:opacity-50 disabled:cursor-not-allowed"
+          >
             {loading ? "En cours..." : (etape === 1 ? "Enregistrer arrivée" : "Enregistrer départ")}
           </button>
         </div>
