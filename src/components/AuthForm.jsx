@@ -35,7 +35,7 @@ export default function AuthForm() {
       // Vérification profil
       const { data: profile, error: profileError } = await supabase
         .from('profiles')
-        .select('role, enfant')   // ✅ colonne au singulier
+        .select('role, enfant, user_id')   // ✅ colonne au singulier
         .eq('user_id', data.session.user.id)
         .single();
 
