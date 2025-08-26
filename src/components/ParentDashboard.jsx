@@ -79,46 +79,83 @@ export default function ParentDashboard() {
     fetchData();
   }, [enfant, date]);
 
-  if (loading) return <div>Chargement...</div>;
-  if (error) return <div className="text-red-600">{error}</div>;
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center py-8">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-gray-900"></div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded">
+        {error}
+      </div>
+    );
+  }
 
   return (
-    <div className="p-6">
-      <h1 className="text-2xl font-bold mb-4">Tableau de bord parent</h1>
-      <p>Enfant: {enfant}</p>
+    <div className="p-4 md:p-6">
+      <div className="bg-white rounded-xl shadow-sm p-6 mb-6">
+        <h1 className="text-2xl font-bold text-gray-800 mb-2">Tableau de bord parent</h1>
+        <p className="text-gray-600">Bienvenue dans l'espace de suivi de {enfant}</p>
+      </div>
 
-      {/* Suivi */}
+      <div className="flex justify-between items-center mb-6">
+        <div className="flex items-center gap-2">
+          <button
+            onClick={() => setDate(date)} // recharge les données
+            className="px-4 py-1 bg-blue-500 text-white rounded hover:bg-blue-600 transition-colors"
+          >
+            Voir
+          </button>
+          <input
+            type="date"
+            value={date}
+            onChange={(e) => setDate(e.target.value)}
+            className="border px-2 py-1 rounded"
+            max={new Date().toISOString().split("T")[0]}
+          />
+        </div>
+      </div>
+
       <section>
         <h2 className="text-xl font-semibold mb-4">Suivi des activités</h2>
         {suivi.length === 0 ? (
-          <p>Aucun suivi pour cette date.</p>
+          <p className="text-gray-500">Aucun suivi pour cette date.</p>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
             {suivi.map((item) => (
-              <div key={item.id} className="p-4 bg-white rounded-lg shadow-sm">
-                <div className="flex justify-between mb-2">
-                  <span>{item.heure}</span>
-                  <span>{item.activite}</span>
+              <div key={item.id} className="p-4 bg-white rounded-lg border border-gray-100 shadow-sm hover:shadow-md transition-shadow">
+                <div className="flex justify-between items-center mb-4">
+                  <span className="px-3 py-1.5 bg-blue-100 text-blue-800 text-xs font-medium rounded-full">
+                    {item.heure}
+                  </span>
+                  <span className="px-3 py-1.5 bg-green-100 text-green-800 text-xs font-medium rounded-full">
+                    {item.activite}
+                  </span>
                 </div>
-                <p>{item.observation}</p>
+                <div className="pt-2">
+                  <p className="text-gray-700 text-sm">{item.observation}</p>
+                </div>
               </div>
             ))}
           </div>
         )}
       </section>
 
-      {/* Présence */}
-      <section className="mt-6">
-        <h2 className="text-xl font-semibold mb-4">Présence</h2>
+      <section>
+        <h2 className="text-xl font-semibold mt-6">Présence</h2>
         {presence.length === 0 ? (
-          <p>Aucune présence pour cette date.</p>
+          <p className="text-gray-500">Aucune présence pour cette date.</p>
         ) : (
           <div className="space-y-3">
             {presence.map((item) => (
-              <div key={item.id} className="p-4 bg-white rounded-lg shadow-sm text-center">
-                <span>{item.heure_arrive || "--:--"}</span>
-                <span className="mx-2">—</span>
-                <span>{item.heure_depart || "--:--"}</span>
+              <div key={item.id} className="p-4 bg-white rounded-lg border border-gray-100 shadow-sm text-center">
+                <span className="font-medium text-gray-700">{item.heure_arrive || "--:--"}</span>
+                <span className="mx-2 text-gray-400">—</span>
+                <span className="font-medium text-gray-700">{item.heure_depart || "--:--"}</span>
               </div>
             ))}
           </div>
