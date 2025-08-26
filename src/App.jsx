@@ -2,7 +2,7 @@ import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import AuthForm from "./components/AuthForm";
 import NounouDashboard from "./components/nounou/NounouDashboard";
 import ParentDashboard from "./components/ParentDashboard";
-
+import AuthWrapper from "./components/AuthWrapper"; 
 // Import de l'image de fond (à remplacer par votre propre image)
 import backgroundImage from './assets/background.jpg';
 
@@ -55,7 +55,8 @@ function App() {
       <div style={contentStyle} className="content-container">
         <Router>
           <Routes>
-            <Route path="/" element={<AuthForm />} />
+            <Route path="/login" element={<AuthForm />} />
+            <Route path="/" element={<AuthWrapper />} />
             <Route path="/nounou" element={<NounouDashboard />} />
             <Route path="/parent/:enfant" element={<ParentDashboard />} />
           </Routes>
